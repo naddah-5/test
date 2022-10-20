@@ -1,7 +1,10 @@
 package udp
 
 import (
+	"encoding/json"
+	"fmt"
 	"net"
+	"time"
 )
 
 // Listener of the udp messages.
@@ -19,9 +22,12 @@ func UDPListener() {
 		println("Setup for listening to udp over v%:v%", dummyAddr.IP, dummyAddr.Port)
 	}
 	defer connection.Close()
-	for {
-		buffer := make([]byte, 4096)
-		n, _, _ := connection.ReadFromUDP(buffer)
-		println((buffer[0:n]))
-	}
+	buffer := make([]byte, 4096)
+	connection.SetReadDeadline(time.Now().Add(4 * time.Second))
+	n, _, _ := connection.ReadFromUDP(buffer)
+	fmt.Println("RETURNED MARSHALED", string(buffer[:n]))
+
+	retMessage, _ := json.Marshal("THIS IS A RETURN TEST")
+
+	connection.WriteToUDP(retMessage, dummyAddr)
 }

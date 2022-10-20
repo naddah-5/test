@@ -1,6 +1,8 @@
 package udp
 
 import (
+	"fmt"
+	"log"
 	"net"
 	"strconv"
 	"time"
@@ -14,19 +16,35 @@ import (
  * Send message over connection.
  */
 func UDPSender(ip net.IP, port int, message []byte) {
+	// addr := ip.String() + ":" + strconv.Itoa(port)
+	// conn, err := net.Dial("udp4", addr)
+	// if err != nil {
+	// 	println("v%", err)
+	// }
+	// defer conn.Close()
+
+	// res := make([]byte, 4096)
+	// conn.SetReadDeadline(time.Now().Add(1 * time.Second))
+	// _, err = conn.Write(message)
+	// if err != nil {
+	// 	println("Something went wrong in the sender...")
+	// }
+
+	// _, err = conn.Read(res)
+
 	addr := ip.String() + ":" + strconv.Itoa(port)
-	conn, err := net.Dial("udp4", addr)
-	if err != nil {
-		println("v%", err)
+
+	conn, err3 := net.Dial("udp4", addr)
+	if err3 != nil {
+		log.Println(err3)
 	}
 	defer conn.Close()
-
-	res := make([]byte, 4096)
-	conn.SetReadDeadline(time.Now().Add(1 * time.Second))
-	_, err = conn.Write(message)
+	conn.Write(message)
+	buffer := make([]byte, 4096)
+	conn.SetReadDeadline(time.Now().Add(4 * time.Second))
+	n, err := conn.Read(buffer)
 	if err != nil {
-		println("Something went wrong in the sender...")
+		fmt.Println("ERROR!", err)
 	}
-
-	_, err = conn.Read(res)
+	fmt.Println(string(buffer[:n]))
 }
