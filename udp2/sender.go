@@ -1,10 +1,9 @@
-package udp
+package udp2
 
 import (
 	"fmt"
 	"log"
 	"net"
-	"strconv"
 	"time"
 )
 
@@ -15,7 +14,25 @@ import (
  * Establish udp4 connection with given address created from ip and port.
  * Send message over connection.
  */
-func UDPSender(ip net.IP, port int, message []byte) {
+func UDPSender(remote *net.UDPAddr, message []byte) {
+
+	//addr := ip.String() + ":" + strconv.Itoa(port)
+
+	conn, err := net.Dial("udp4", remote.String())
+	if err != nil {
+		log.Println(err)
+	}
+	defer conn.Close()
+	conn.Write(message)
+	buffer := make([]byte, 4096)
+	conn.SetReadDeadline(time.Now().Add(4 * time.Second))
+	n, err := conn.Read(buffer)
+	if err != nil {
+		fmt.Println("ERROR!", err)
+	}
+	fmt.Println(n)
+	fmt.Println(string(buffer[:n]))
+
 	// addr := ip.String() + ":" + strconv.Itoa(port)
 	// conn, err := net.Dial("udp4", addr)
 	// if err != nil {
@@ -31,20 +48,4 @@ func UDPSender(ip net.IP, port int, message []byte) {
 	// }
 
 	// _, err = conn.Read(res)
-
-	addr := ip.String() + ":" + strconv.Itoa(port)
-
-	conn, err3 := net.Dial("udp4", addr)
-	if err3 != nil {
-		log.Println(err3)
-	}
-	defer conn.Close()
-	conn.Write(message)
-	buffer := make([]byte, 4096)
-	conn.SetReadDeadline(time.Now().Add(4 * time.Second))
-	n, err := conn.Read(buffer)
-	if err != nil {
-		fmt.Println("ERROR!", err)
-	}
-	fmt.Println(string(buffer[:n]))
 }

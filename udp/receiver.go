@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net"
-	"time"
 )
 
 // Listener of the udp messages.
@@ -13,21 +12,21 @@ import (
 func UDPListener() {
 	dummyAddr, err := net.ResolveUDPAddr("udp4", "127.0.0.1:4001")
 	if err != nil {
-		println("v%", err)
+		fmt.Println("v%", err)
 	}
 	connection, err := net.ListenUDP("udp4", dummyAddr)
 	if err != nil {
-		println("There was an error in the ListenUDP:", err)
+		fmt.Println("There was an error in the ListenUDP:", err)
 	} else {
-		println("Setup for listening to udp over v%:v%", dummyAddr.IP, dummyAddr.Port)
+		fmt.Println("Setup for listening to udp over", dummyAddr.IP, ":", dummyAddr.Port)
 	}
 	defer connection.Close()
 	buffer := make([]byte, 4096)
-	connection.SetReadDeadline(time.Now().Add(4 * time.Second))
-	n, _, _ := connection.ReadFromUDP(buffer)
+	// connection.SetReadDeadline(time.Now().Add(4 * time.Second))
+	n, addr, _ := connection.ReadFromUDP(buffer)
 	fmt.Println("RETURNED MARSHALED", string(buffer[:n]))
 
 	retMessage, _ := json.Marshal("THIS IS A RETURN TEST")
 
-	connection.WriteToUDP(retMessage, dummyAddr)
+	connection.WriteToUDP(retMessage, addr)
 }
